@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-sp-black: #121212;
+  --color-sp-dark: #181818;
+  --color-sp-gray: #282828;
+  --color-sp-light-gray: #b3b3b3;
+  --color-sp-white: #ffffff;
+  --color-sp-green: #1db954;
+  --color-sp-green-light: #1ed760;
+  --color-sp-hover: #2a2a2a;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #535353 transparent;
+}
+
+body {
+  background: #121212;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow: hidden;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: #535353;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #fff;
+  margin-top: -4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+input[type="range"]:hover::-webkit-slider-thumb {
+  opacity: 1;
+}
+
+.arabic-text {
+  font-family: 'Traditional Arabic', 'Scheherazade New', 'Amiri', serif;
+  direction: rtl;
+  line-height: 2.2;
+}
