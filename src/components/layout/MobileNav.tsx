@@ -7,27 +7,32 @@ import { BiLibrary } from 'react-icons/bi';
 import { MdOutlineExplore, MdExplore } from 'react-icons/md';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: IoHomeOutline, activeIcon: IoHomeSharp },
-  { href: '/search', label: 'Search', icon: IoSearchOutline, activeIcon: IoSearchSharp },
-  { href: '/browse', label: 'Browse', icon: MdOutlineExplore, activeIcon: MdExplore },
-  { href: '/library', label: 'Library', icon: BiLibrary, activeIcon: BiLibrary },
+  { href: '/', label: 'Home', icon: IoHomeOutline, activeIcon: IoHomeSharp, exact: true },
+  { href: '/search', label: 'Search', icon: IoSearchOutline, activeIcon: IoSearchSharp, exact: true },
+  { href: '/browse', label: 'Browse', icon: MdOutlineExplore, activeIcon: MdExplore, exact: false },
+  { href: '/library', label: 'Library', icon: BiLibrary, activeIcon: BiLibrary, exact: true },
 ];
 
 export default function MobileNav() {
   const pathname = usePathname();
 
+  const isActive = (href: string, exact: boolean) => {
+    if (exact) return pathname === href;
+    return pathname === href || pathname.startsWith(href + '/');
+  };
+
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-gradient-to-t from-sp-black via-sp-black/95 to-transparent px-4 pt-6 pb-2 z-20">
+    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-sp-black border-t border-[#282828] px-4 py-2 z-20">
       <div className="flex justify-around">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = isActive ? item.activeIcon : item.icon;
+          const active = isActive(item.href, item.exact);
+          const Icon = active ? item.activeIcon : item.icon;
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center gap-1 text-[10px] font-medium ${
-                isActive ? 'text-sp-white' : 'text-sp-light-gray'
+              className={`flex flex-col items-center gap-1 text-[10px] font-medium py-1 px-3 ${
+                active ? 'text-sp-white' : 'text-sp-light-gray'
               }`}
             >
               <Icon size={22} />
