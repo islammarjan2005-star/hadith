@@ -56,7 +56,7 @@ export default function ReciterSelector() {
               <button
                 key={r.id}
                 onClick={() => {
-                  setReciter(r.id, r.reciter_name);
+                  setReciter(r.id, r.name);
                   setOpen(false);
                 }}
                 className={`w-full text-left px-3 py-2 text-sm hover:bg-sp-hover flex items-center justify-between ${
@@ -64,8 +64,8 @@ export default function ReciterSelector() {
                 }`}
               >
                 <span>
-                  {r.reciter_name}
-                  {r.style && <span className="text-sp-light-gray ml-1">({r.style})</span>}
+                  {r.name}
+                  {r.style && <span className="text-sp-light-gray ml-1">({r.style.name})</span>}
                 </span>
                 {r.id === selectedReciterId && <IoCheckmark size={16} />}
               </button>

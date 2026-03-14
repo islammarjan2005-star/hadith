@@ -6,6 +6,7 @@ import PlayButton from '@/components/ui/PlayButton';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
+import { getChapterAudio } from '@/lib/api';
 
 interface SurahCardProps {
   chapter: Chapter;
@@ -18,19 +19,32 @@ export default function SurahCard({ chapter }: SurahCardProps) {
 
   const isCurrentTrack = currentTrack?.chapterId === chapter.id;
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     if (isCurrentTrack) {
       togglePlay();
     } else {
-      const paddedId = chapter.id.toString().padStart(3, '0');
-      playTrack({
-        chapterId: chapter.id,
-        chapterName: chapter.name_simple,
-        chapterNameArabic: chapter.name_arabic,
-        audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
-        reciterName: selectedReciterName,
-      });
-      addToRecent(chapter.id, chapter.name_simple);
+      try {
+        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: audio.audio_url,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      } catch {
+        // Fallback to default reciter
+        const paddedId = chapter.id.toString().padStart(3, '0');
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      }
     }
   };
 

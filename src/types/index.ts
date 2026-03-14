@@ -52,8 +52,11 @@ export interface Word {
 
 export interface Reciter {
   id: number;
-  reciter_name: string;
-  style: string | null;
+  name: string;
+  arabic_name: string;
+  relative_path: string;
+  file_formats: string;
+  style: { name: string; description: string } | null;
   translated_name: {
     name: string;
     language_name: string;

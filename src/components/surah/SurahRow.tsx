@@ -6,6 +6,7 @@ import PlayButton from '@/components/ui/PlayButton';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
+import { getChapterAudio } from '@/lib/api';
 import { IoHeart, IoHeartOutline } from 'react-icons/io5';
 
 interface SurahRowProps {
@@ -15,25 +16,37 @@ interface SurahRowProps {
 
 export default function SurahRow({ chapter, index }: SurahRowProps) {
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
-  const { selectedReciterName } = useReciterStore();
+  const { selectedReciterId, selectedReciterName } = useReciterStore();
   const { toggleFavorite, isFavorite, addToRecent } = useLibraryStore();
 
   const isCurrentTrack = currentTrack?.chapterId === chapter.id;
   const liked = isFavorite(chapter.id);
 
-  const handlePlay = () => {
+  const handlePlay = async () => {
     if (isCurrentTrack) {
       togglePlay();
     } else {
-      const paddedId = chapter.id.toString().padStart(3, '0');
-      playTrack({
-        chapterId: chapter.id,
-        chapterName: chapter.name_simple,
-        chapterNameArabic: chapter.name_arabic,
-        audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
-        reciterName: selectedReciterName,
-      });
-      addToRecent(chapter.id, chapter.name_simple);
+      try {
+        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: audio.audio_url,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      } catch {
+        const paddedId = chapter.id.toString().padStart(3, '0');
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      }
     }
   };
 

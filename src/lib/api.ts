@@ -56,8 +56,8 @@ export async function getChapterAudio(
 }
 
 export async function getReciters(): Promise<Reciter[]> {
-  const data = await fetchApi<{ recitations: Reciter[] }>('/resources/recitations?language=en');
-  return data.recitations;
+  const data = await fetchApi<{ reciters: Reciter[] }>('/resources/chapter_reciters?language=en');
+  return data.reciters;
 }
 
 export async function searchVerses(query: string, page: number = 1): Promise<SearchResult> {

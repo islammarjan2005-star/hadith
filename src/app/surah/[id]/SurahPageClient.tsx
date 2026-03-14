@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { Chapter, Verse } from '@/types';
-import { getChapter, getVerses } from '@/lib/api';
+import { getChapter, getVerses, getChapterAudio } from '@/lib/api';
 import AyahList from '@/components/surah/AyahList';
 import PlayButton from '@/components/ui/PlayButton';
 import ReciterSelector from '@/components/reciter/ReciterSelector';
@@ -21,7 +21,7 @@ export default function SurahPageClient() {
   const [loading, setLoading] = useState(true);
 
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
-  const { selectedReciterName } = useReciterStore();
+  const { selectedReciterId, selectedReciterName } = useReciterStore();
   const { toggleFavorite, isFavorite, addToRecent } = useLibraryStore();
 
   const isCurrentTrack = currentTrack?.chapterId === id;
@@ -40,19 +40,31 @@ export default function SurahPageClient() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handlePlayAll = () => {
+  const handlePlayAll = async () => {
     if (isCurrentTrack) {
       togglePlay();
     } else if (chapter) {
-      const paddedId = chapter.id.toString().padStart(3, '0');
-      playTrack({
-        chapterId: chapter.id,
-        chapterName: chapter.name_simple,
-        chapterNameArabic: chapter.name_arabic,
-        audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
-        reciterName: selectedReciterName,
-      });
-      addToRecent(chapter.id, chapter.name_simple);
+      try {
+        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: audio.audio_url,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      } catch {
+        const paddedId = chapter.id.toString().padStart(3, '0');
+        playTrack({
+          chapterId: chapter.id,
+          chapterName: chapter.name_simple,
+          chapterNameArabic: chapter.name_arabic,
+          audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
+          reciterName: selectedReciterName,
+        });
+        addToRecent(chapter.id, chapter.name_simple);
+      }
     }
   };
 
