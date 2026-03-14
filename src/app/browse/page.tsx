@@ -1,24 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Chapter } from '@/types';
 import { getChapters } from '@/lib/api';
 import SurahRow from '@/components/surah/SurahRow';
 import { RowSkeleton } from '@/components/ui/SkeletonLoader';
+import ErrorRetry from '@/components/ui/ErrorRetry';
 
 type Filter = 'all' | 'makkah' | 'madinah';
 
 export default function BrowsePage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
 
-  useEffect(() => {
-    getChapters()
-      .then(setChapters)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await getChapters();
+      setChapters(data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (error && chapters.length === 0) {
+    return <ErrorRetry message="Failed to load surahs." onRetry={loadData} />;
+  }
 
   const filtered =
     filter === 'all'
@@ -62,7 +78,7 @@ export default function BrowsePage() {
       ) : (
         <div>
           {filtered.map((chapter, idx) => (
-            <SurahRow key={chapter.id} chapter={chapter} index={idx} />
+            <SurahRow key={chapter.id} chapter={chapter} index={idx} allChapters={filtered} />
           ))}
         </div>
       )}

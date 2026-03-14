@@ -32,6 +32,21 @@ export async function getVerses(
   return data;
 }
 
+export async function getAllVerses(chapterId: number): Promise<Verse[]> {
+  const allVerses: Verse[] = [];
+  let page = 1;
+  let totalPages = 1;
+
+  do {
+    const data = await getVerses(chapterId, page);
+    allVerses.push(...data.verses);
+    totalPages = data.pagination.total_pages;
+    page++;
+  } while (page <= totalPages);
+
+  return allVerses;
+}
+
 export async function getAudioFiles(
   reciterId: number,
   chapterId: number

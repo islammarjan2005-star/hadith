@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { Chapter, Verse } from '@/types';
-import { getChapter, getVerses, getChapterAudio } from '@/lib/api';
+import { getChapter, getAllVerses, getChapterAudio } from '@/lib/api';
 import AyahList from '@/components/surah/AyahList';
 import PlayButton from '@/components/ui/PlayButton';
 import ReciterSelector from '@/components/reciter/ReciterSelector';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import { IoHeart, IoHeartOutline } from 'react-icons/io5';
+import { IoHeart, IoHeartOutline, IoShareSocial } from 'react-icons/io5';
 import { RowSkeleton } from '@/components/ui/SkeletonLoader';
 
 export default function SurahPageClient() {
@@ -19,6 +19,7 @@ export default function SurahPageClient() {
   const [chapter, setChapter] = useState<Chapter | null>(null);
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
   const { selectedReciterId, selectedReciterName } = useReciterStore();
@@ -27,18 +28,48 @@ export default function SurahPageClient() {
   const isCurrentTrack = currentTrack?.chapterId === id;
   const liked = isFavorite(id);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
-
-    Promise.all([getChapter(id), getVerses(id)])
-      .then(([ch, v]) => {
-        setChapter(ch);
-        setVerses(v.verses);
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    setError(null);
+    try {
+      const [ch, v] = await Promise.all([getChapter(id), getAllVerses(id)]);
+      setChapter(ch);
+      setVerses(v);
+    } catch {
+      setError('Failed to load surah. Please check your connection.');
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // Hot-swap reciter when changed mid-playback
+  useEffect(() => {
+    if (!isCurrentTrack || !chapter) return;
+    const swapReciter = async () => {
+      try {
+        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+        const store = usePlayerStore.getState();
+        if (store.audioElement && store.currentTrack?.chapterId === chapter.id) {
+          const currentTime = store.audioElement.currentTime;
+          const wasPlaying = store.isPlaying;
+          store.audioElement.src = audio.audio_url;
+          store.audioElement.currentTime = currentTime;
+          usePlayerStore.setState({
+            currentTrack: { ...store.currentTrack, audioUrl: audio.audio_url, reciterName: selectedReciterName },
+          });
+          if (wasPlaying) store.audioElement.play().catch(() => {});
+        }
+      } catch {
+        // Keep current audio if swap fails
+      }
+    };
+    swapReciter();
+  }, [selectedReciterId, selectedReciterName, isCurrentTrack, chapter]);
 
   const handlePlayAll = async () => {
     if (isCurrentTrack) {
@@ -68,6 +99,21 @@ export default function SurahPageClient() {
     }
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    const text = chapter ? `Listen to Surah ${chapter.name_simple}` : 'Listen to Quran';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: text, url });
+      } catch {
+        // User cancelled share
+      }
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -75,6 +121,20 @@ export default function SurahPageClient() {
         {Array.from({ length: 10 }).map((_, i) => (
           <RowSkeleton key={i} />
         ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <p className="text-sp-light-gray mb-4">{error}</p>
+        <button
+          onClick={loadData}
+          className="px-6 py-2 bg-sp-green text-black rounded-full font-semibold text-sm hover:bg-sp-green-light transition-colors"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -111,8 +171,16 @@ export default function SurahPageClient() {
         <button
           onClick={() => toggleFavorite(chapter.id)}
           className={`transition-colors ${liked ? 'text-sp-green' : 'text-sp-light-gray hover:text-sp-white'}`}
+          aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
         >
           {liked ? <IoHeart size={28} /> : <IoHeartOutline size={28} />}
+        </button>
+        <button
+          onClick={handleShare}
+          className="text-sp-light-gray hover:text-sp-white transition-colors"
+          aria-label="Share this surah"
+        >
+          <IoShareSocial size={24} />
         </button>
         <div className="ml-auto">
           <ReciterSelector />

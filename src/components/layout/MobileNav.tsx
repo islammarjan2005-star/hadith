@@ -22,7 +22,7 @@ export default function MobileNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-sp-black border-t border-[#282828] px-4 py-2 z-20">
+    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-sp-black border-t border-[#282828] px-4 py-2 z-20" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="flex justify-around">
         {navItems.map((item) => {
           const active = isActive(item.href, item.exact);

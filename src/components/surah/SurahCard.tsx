@@ -6,14 +6,16 @@ import PlayButton from '@/components/ui/PlayButton';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import { getChapterAudio } from '@/lib/api';
+import { resolveAudioUrl } from '@/lib/audioHelper';
+import { buildQueueFromChapters } from '@/lib/audioHelper';
 
 interface SurahCardProps {
   chapter: Chapter;
+  allChapters?: Chapter[];
 }
 
-export default function SurahCard({ chapter }: SurahCardProps) {
-  const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
+export default function SurahCard({ chapter, allChapters }: SurahCardProps) {
+  const { currentTrack, isPlaying, playTrack, playQueue, togglePlay } = usePlayerStore();
   const { selectedReciterId, selectedReciterName } = useReciterStore();
   const { addToRecent } = useLibraryStore();
 
@@ -23,27 +25,23 @@ export default function SurahCard({ chapter }: SurahCardProps) {
     if (isCurrentTrack) {
       togglePlay();
     } else {
-      try {
-        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+      const audioUrl = await resolveAudioUrl(selectedReciterId, chapter.id);
+      addToRecent(chapter.id, chapter.name_simple);
+
+      if (allChapters && allChapters.length > 1) {
+        const queue = buildQueueFromChapters(allChapters, selectedReciterName);
+        const startIdx = allChapters.findIndex((c) => c.id === chapter.id);
+        // Set the resolved URL for the starting track
+        queue[startIdx] = { ...queue[startIdx], audioUrl };
+        playQueue(queue, startIdx);
+      } else {
         playTrack({
           chapterId: chapter.id,
           chapterName: chapter.name_simple,
           chapterNameArabic: chapter.name_arabic,
-          audioUrl: audio.audio_url,
+          audioUrl,
           reciterName: selectedReciterName,
         });
-        addToRecent(chapter.id, chapter.name_simple);
-      } catch {
-        // Fallback to default reciter
-        const paddedId = chapter.id.toString().padStart(3, '0');
-        playTrack({
-          chapterId: chapter.id,
-          chapterName: chapter.name_simple,
-          chapterNameArabic: chapter.name_arabic,
-          audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
-          reciterName: selectedReciterName,
-        });
-        addToRecent(chapter.id, chapter.name_simple);
       }
     }
   };

@@ -8,8 +8,18 @@ import VolumeControl from './VolumeControl';
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const { currentTrack, setAudioElement, setDuration, setCurrentTime, next, volume } =
-    usePlayerStore();
+  const {
+    currentTrack,
+    setAudioElement,
+    setDuration,
+    setCurrentTime,
+    setBuffering,
+    setError,
+    handleEnded,
+    volume,
+    playbackRate,
+    cyclePlaybackRate,
+  } = usePlayerStore();
 
   useEffect(() => {
     if (audioRef.current) {
@@ -23,8 +33,17 @@ export default function AudioPlayer() {
       <audio
         ref={audioRef}
         onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-        onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-        onEnded={next}
+        onLoadedMetadata={(e) => {
+          setDuration(e.currentTarget.duration);
+          setBuffering(false);
+        }}
+        onEnded={handleEnded}
+        onWaiting={() => setBuffering(true)}
+        onCanPlay={() => setBuffering(false)}
+        onError={() => {
+          setError(true);
+          setBuffering(false);
+        }}
         preload="auto"
       />
 
@@ -51,8 +70,15 @@ export default function AudioPlayer() {
         <ProgressBar />
       </div>
 
-      {/* Volume */}
-      <div className="w-[200px] min-w-[120px] flex justify-end">
+      {/* Volume + Speed */}
+      <div className="w-[200px] min-w-[120px] flex justify-end items-center gap-3">
+        <button
+          onClick={cyclePlaybackRate}
+          className="hidden sm:flex text-[11px] text-sp-light-gray hover:text-sp-white transition-colors border border-sp-light-gray/30 rounded px-1.5 py-0.5 min-w-[36px] justify-center"
+          aria-label={`Playback speed ${playbackRate}x`}
+        >
+          {playbackRate}x
+        </button>
         <VolumeControl />
       </div>
     </div>

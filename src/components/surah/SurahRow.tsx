@@ -6,16 +6,17 @@ import PlayButton from '@/components/ui/PlayButton';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import { getChapterAudio } from '@/lib/api';
+import { resolveAudioUrl, buildQueueFromChapters } from '@/lib/audioHelper';
 import { IoHeart, IoHeartOutline } from 'react-icons/io5';
 
 interface SurahRowProps {
   chapter: Chapter;
   index: number;
+  allChapters?: Chapter[];
 }
 
-export default function SurahRow({ chapter, index }: SurahRowProps) {
-  const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
+export default function SurahRow({ chapter, index, allChapters }: SurahRowProps) {
+  const { currentTrack, isPlaying, playTrack, playQueue, togglePlay } = usePlayerStore();
   const { selectedReciterId, selectedReciterName } = useReciterStore();
   const { toggleFavorite, isFavorite, addToRecent } = useLibraryStore();
 
@@ -26,26 +27,22 @@ export default function SurahRow({ chapter, index }: SurahRowProps) {
     if (isCurrentTrack) {
       togglePlay();
     } else {
-      try {
-        const audio = await getChapterAudio(selectedReciterId, chapter.id);
+      const audioUrl = await resolveAudioUrl(selectedReciterId, chapter.id);
+      addToRecent(chapter.id, chapter.name_simple);
+
+      if (allChapters && allChapters.length > 1) {
+        const queue = buildQueueFromChapters(allChapters, selectedReciterName);
+        const startIdx = allChapters.findIndex((c) => c.id === chapter.id);
+        queue[startIdx] = { ...queue[startIdx], audioUrl };
+        playQueue(queue, startIdx);
+      } else {
         playTrack({
           chapterId: chapter.id,
           chapterName: chapter.name_simple,
           chapterNameArabic: chapter.name_arabic,
-          audioUrl: audio.audio_url,
+          audioUrl,
           reciterName: selectedReciterName,
         });
-        addToRecent(chapter.id, chapter.name_simple);
-      } catch {
-        const paddedId = chapter.id.toString().padStart(3, '0');
-        playTrack({
-          chapterId: chapter.id,
-          chapterName: chapter.name_simple,
-          chapterNameArabic: chapter.name_arabic,
-          audioUrl: `https://download.quranicaudio.com/quran/mishaari_raashid_al_3afaasee/${paddedId}.mp3`,
-          reciterName: selectedReciterName,
-        });
-        addToRecent(chapter.id, chapter.name_simple);
       }
     }
   };
@@ -89,6 +86,7 @@ export default function SurahRow({ chapter, index }: SurahRowProps) {
           toggleFavorite(chapter.id);
         }}
         className={`transition-colors ${liked ? 'text-sp-green' : 'text-sp-light-gray opacity-0 group-hover:opacity-100'}`}
+        aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
       >
         {liked ? <IoHeart size={16} /> : <IoHeartOutline size={16} />}
       </button>

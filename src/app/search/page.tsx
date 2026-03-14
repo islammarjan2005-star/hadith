@@ -14,6 +14,7 @@ export default function SearchPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [searchError, setSearchError] = useState(false);
 
   useEffect(() => {
     getChapters().then(setChapters).catch(() => {});
@@ -23,15 +24,18 @@ export default function SearchPage() {
     if (q.length < 2) {
       setResults([]);
       setSearched(false);
+      setSearchError(false);
       return;
     }
     setLoading(true);
     setSearched(true);
+    setSearchError(false);
     try {
       const data = await searchVerses(q);
       setResults(data.search.results);
     } catch {
       setResults([]);
+      setSearchError(true);
     }
     setLoading(false);
   }, []);
@@ -41,7 +45,6 @@ export default function SearchPage() {
     return () => clearTimeout(timer);
   }, [query, search]);
 
-  // Filter chapters by name for quick matches
   const matchingChapters = query.length >= 2
     ? chapters.filter(
         (c) =>
@@ -89,6 +92,8 @@ export default function SearchPage() {
             <RowSkeleton key={i} />
           ))}
         </div>
+      ) : searchError ? (
+        <p className="text-sp-light-gray text-sm">Search failed. Please try again.</p>
       ) : results.length > 0 ? (
         <section>
           <h3 className="text-lg font-bold text-sp-white mb-3">Verses</h3>
@@ -99,7 +104,7 @@ export default function SearchPage() {
                 <Link
                   key={result.verse_id}
                   href={`/surah/${surahId}`}
-                  className="flex items-start gap-3 p-3 rounded-md hover:bg-sp-hover transition-colors"
+                  className="flex items-start gap-3 p-3 rounded-md hover:bg-sp-hover transition-colors block"
                 >
                   <span className="text-xs text-sp-light-gray bg-sp-gray px-2 py-1 rounded shrink-0">
                     {result.verse_key}

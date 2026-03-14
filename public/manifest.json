@@ -1,0 +1,23 @@
+{
+  "name": "Quran Player",
+  "short_name": "Quran",
+  "description": "A Spotify-style Quran listening experience with multiple reciters",
+  "start_url": "/hadith/",
+  "scope": "/hadith/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#1db954",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/hadith/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/hadith/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

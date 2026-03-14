@@ -1,23 +1,39 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Chapter } from '@/types';
 import { getChapters } from '@/lib/api';
 import SurahCard from '@/components/surah/SurahCard';
 import { useLibraryStore } from '@/store/libraryStore';
 import { GridSkeleton } from '@/components/ui/SkeletonLoader';
+import ErrorRetry from '@/components/ui/ErrorRetry';
 
 export default function LibraryPage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { favorites, recentlyPlayed } = useLibraryStore();
 
-  useEffect(() => {
-    getChapters()
-      .then(setChapters)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await getChapters();
+      setChapters(data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (error && chapters.length === 0) {
+    return <ErrorRetry message="Failed to load your library." onRetry={loadData} />;
+  }
 
   const favoriteChapters = chapters.filter((c) => favorites.includes(c.id));
   const recentChapters = recentlyPlayed

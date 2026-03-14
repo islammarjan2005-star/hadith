@@ -1,24 +1,40 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Chapter } from '@/types';
 import { getChapters } from '@/lib/api';
 import SurahCard from '@/components/surah/SurahCard';
 import { useLibraryStore } from '@/store/libraryStore';
 import { GridSkeleton } from '@/components/ui/SkeletonLoader';
+import ErrorRetry from '@/components/ui/ErrorRetry';
 import Link from 'next/link';
 
 export default function HomePage() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const { recentlyPlayed } = useLibraryStore();
 
-  useEffect(() => {
-    getChapters()
-      .then(setChapters)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const data = await getChapters();
+      setChapters(data);
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  if (error && chapters.length === 0) {
+    return <ErrorRetry message="Failed to load surahs." onRetry={loadData} />;
+  }
 
   const featuredSurahs = chapters.filter((c) =>
     [1, 2, 18, 36, 55, 56, 67, 78, 112, 114].includes(c.id)
