@@ -42,7 +42,7 @@ export default function BrowsePage() {
       : chapters.filter((c) => c.revelation_place === filter);
 
   return (
-    <div>
+    <div className="animate-fadeSlideIn">
       <h1 className="text-3xl font-bold text-sp-white mb-6">Browse Surahs</h1>
 
       <div className="flex gap-2 mb-6">

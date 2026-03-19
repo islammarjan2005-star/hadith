@@ -7,6 +7,7 @@ import SurahCard from '@/components/surah/SurahCard';
 import { useLibraryStore } from '@/store/libraryStore';
 import { GridSkeleton } from '@/components/ui/SkeletonLoader';
 import ErrorRetry from '@/components/ui/ErrorRetry';
+import DailyVerse from '@/components/home/DailyVerse';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -46,7 +47,10 @@ export default function HomePage() {
     .filter(Boolean) as Chapter[];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fadeSlideIn">
+      {/* Daily Verse */}
+      <DailyVerse />
+
       <section>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-sp-white">Featured Surahs</h2>
@@ -59,7 +63,7 @@ export default function HomePage() {
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {featuredSurahs.slice(0, 6).map((chapter) => (
-              <SurahCard key={chapter.id} chapter={chapter} />
+              <SurahCard key={chapter.id} chapter={chapter} allChapters={chapters} />
             ))}
           </div>
         )}
@@ -70,7 +74,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-sp-white mb-4">Recently Played</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {recentChapters.map((chapter) => (
-              <SurahCard key={chapter.id} chapter={chapter} />
+              <SurahCard key={chapter.id} chapter={chapter} allChapters={chapters} />
             ))}
           </div>
         </section>
@@ -91,7 +95,7 @@ export default function HomePage() {
               .filter((c) => c.verses_count <= 20)
               .slice(0, 6)
               .map((chapter) => (
-                <SurahCard key={chapter.id} chapter={chapter} />
+                <SurahCard key={chapter.id} chapter={chapter} allChapters={chapters} />
               ))}
           </div>
         )}
@@ -107,7 +111,7 @@ export default function HomePage() {
               .filter((c) => c.revelation_place === 'makkah')
               .slice(0, 6)
               .map((chapter) => (
-                <SurahCard key={chapter.id} chapter={chapter} />
+                <SurahCard key={chapter.id} chapter={chapter} allChapters={chapters} />
               ))}
           </div>
         )}

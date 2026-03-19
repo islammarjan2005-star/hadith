@@ -21,24 +21,26 @@ export async function getChapter(id: number): Promise<Chapter> {
 
 export async function getVerses(
   chapterId: number,
-  page: number = 1
+  page: number = 1,
+  includeWords: boolean = false
 ): Promise<{ verses: Verse[]; pagination: { total_pages: number; current_page: number; total_records: number } }> {
+  const wordsParam = includeWords ? '&words=true&word_fields=text_uthmani,translation,transliteration' : '';
   const data = await fetchApi<{
     verses: Verse[];
     pagination: { total_pages: number; current_page: number; total_records: number };
   }>(
-    `/verses/by_chapter/${chapterId}?language=en&translations=131&fields=text_uthmani&per_page=50&page=${page}`
+    `/verses/by_chapter/${chapterId}?language=en&translations=131&fields=text_uthmani&per_page=50&page=${page}${wordsParam}`
   );
   return data;
 }
 
-export async function getAllVerses(chapterId: number): Promise<Verse[]> {
+export async function getAllVerses(chapterId: number, includeWords: boolean = false): Promise<Verse[]> {
   const allVerses: Verse[] = [];
   let page = 1;
   let totalPages = 1;
 
   do {
-    const data = await getVerses(chapterId, page);
+    const data = await getVerses(chapterId, page, includeWords);
     allVerses.push(...data.verses);
     totalPages = data.pagination.total_pages;
     page++;

@@ -2,16 +2,18 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { Chapter, Verse } from '@/types';
-import { getChapter, getAllVerses, getChapterAudio } from '@/lib/api';
+import { Chapter, Verse, AudioFile } from '@/types';
+import { getChapter, getAllVerses, getChapterAudio, getAudioFiles } from '@/lib/api';
 import AyahList from '@/components/surah/AyahList';
 import PlayButton from '@/components/ui/PlayButton';
 import ReciterSelector from '@/components/reciter/ReciterSelector';
+import ScrollToTop from '@/components/ui/ScrollToTop';
 import { usePlayerStore } from '@/store/playerStore';
 import { useReciterStore } from '@/store/reciterStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import { IoHeart, IoHeartOutline, IoShareSocial } from 'react-icons/io5';
+import { IoHeart, IoHeartOutline, IoShareSocial, IoBookmark, IoText } from 'react-icons/io5';
 import { RowSkeleton } from '@/components/ui/SkeletonLoader';
+import { formatTime } from '@/lib/utils';
 
 export default function SurahPageClient() {
   const params = useParams();
@@ -20,20 +22,23 @@ export default function SurahPageClient() {
   const [verses, setVerses] = useState<Verse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showWordByWord, setShowWordByWord] = useState(false);
+  const [verseAudioFiles, setVerseAudioFiles] = useState<AudioFile[]>([]);
 
-  const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayerStore();
+  const { currentTrack, isPlaying, playTrack, playQueue, togglePlay, setPlayingVerseKey } = usePlayerStore();
   const { selectedReciterId, selectedReciterName } = useReciterStore();
-  const { toggleFavorite, isFavorite, addToRecent } = useLibraryStore();
+  const { toggleFavorite, isFavorite, addToRecent, getBookmark, removeBookmark } = useLibraryStore();
 
   const isCurrentTrack = currentTrack?.chapterId === id;
   const liked = isFavorite(id);
+  const bookmark = getBookmark(id);
 
   const loadData = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     setError(null);
     try {
-      const [ch, v] = await Promise.all([getChapter(id), getAllVerses(id)]);
+      const [ch, v] = await Promise.all([getChapter(id), getAllVerses(id, showWordByWord)]);
       setChapter(ch);
       setVerses(v);
     } catch {
@@ -41,11 +46,19 @@ export default function SurahPageClient() {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, showWordByWord]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Fetch verse-level audio files
+  useEffect(() => {
+    if (!id) return;
+    getAudioFiles(selectedReciterId, id)
+      .then(setVerseAudioFiles)
+      .catch(() => setVerseAudioFiles([]));
+  }, [id, selectedReciterId]);
 
   // Hot-swap reciter when changed mid-playback
   useEffect(() => {
@@ -99,25 +112,72 @@ export default function SurahPageClient() {
     }
   };
 
+  const handleResumeBookmark = () => {
+    if (!bookmark || !chapter) return;
+    handlePlayAll().then(() => {
+      // Wait for audio to load, then seek
+      setTimeout(() => {
+        const { audioElement } = usePlayerStore.getState();
+        if (audioElement) {
+          audioElement.currentTime = bookmark.position;
+        }
+        removeBookmark(chapter.id);
+      }, 500);
+    });
+  };
+
+  const handlePlayAyah = (verseKey: string) => {
+    if (!chapter || verseAudioFiles.length === 0) return;
+
+    // Build a queue from verse audio files
+    const queue = verseAudioFiles.map((af) => ({
+      chapterId: chapter.id,
+      chapterName: `${chapter.name_simple} - ${af.verse_key}`,
+      chapterNameArabic: chapter.name_arabic,
+      audioUrl: af.url,
+      reciterName: selectedReciterName,
+    }));
+
+    const startIndex = verseAudioFiles.findIndex((af) => af.verse_key === verseKey);
+    if (startIndex === -1) return;
+
+    setPlayingVerseKey(verseKey);
+    playQueue(queue, startIndex);
+    addToRecent(chapter.id, chapter.name_simple);
+
+    // Track verse key changes as audio advances
+    const unsubscribe = usePlayerStore.subscribe((state, prevState) => {
+      if (state.currentTrack !== prevState.currentTrack && state.currentTrack) {
+        const match = verseAudioFiles.find((af) => af.url === state.currentTrack?.audioUrl);
+        if (match) {
+          setPlayingVerseKey(match.verse_key);
+        } else {
+          setPlayingVerseKey(null);
+          unsubscribe();
+        }
+      }
+      if (!state.isPlaying && !state.isBuffering && prevState.isPlaying) {
+        // Could be paused or ended
+      }
+    });
+  };
+
   const handleShare = async () => {
     const url = window.location.href;
     const text = chapter ? `Listen to Surah ${chapter.name_simple}` : 'Listen to Quran';
     if (navigator.share) {
       try {
         await navigator.share({ title: text, url });
-      } catch {
-        // User cancelled share
-      }
+      } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(url);
-      alert('Link copied to clipboard!');
     }
   };
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <div className="h-48 bg-sp-gray rounded-lg animate-pulse" />
+      <div className="space-y-4 animate-fadeSlideIn">
+        <div className="h-48 skeleton-shimmer rounded-lg" />
         {Array.from({ length: 10 }).map((_, i) => (
           <RowSkeleton key={i} />
         ))}
@@ -144,7 +204,7 @@ export default function SurahPageClient() {
   }
 
   return (
-    <div>
+    <div className="animate-fadeSlideIn">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 mb-8 bg-gradient-to-b from-emerald-900/40 to-transparent -mx-4 md:-mx-6 -mt-14 px-4 md:px-6 pt-20 pb-6">
         <div className="w-40 h-40 bg-gradient-to-br from-sp-green/40 to-emerald-900 rounded-lg flex items-center justify-center shadow-2xl shrink-0">
@@ -160,6 +220,17 @@ export default function SurahPageClient() {
           </p>
         </div>
       </div>
+
+      {/* Bookmark resume */}
+      {bookmark && bookmark.position > 5 && (
+        <button
+          onClick={handleResumeBookmark}
+          className="flex items-center gap-2 mb-4 px-4 py-2 bg-sp-gray/60 rounded-lg text-sm text-sp-white hover:bg-sp-hover transition-colors"
+        >
+          <IoBookmark size={16} className="text-sp-green" />
+          Resume from {formatTime(bookmark.position)}
+        </button>
+      )}
 
       {/* Controls */}
       <div className="flex items-center gap-4 mb-6">
@@ -182,13 +253,27 @@ export default function SurahPageClient() {
         >
           <IoShareSocial size={24} />
         </button>
+        <button
+          onClick={() => setShowWordByWord(!showWordByWord)}
+          className={`transition-colors ${showWordByWord ? 'text-sp-green' : 'text-sp-light-gray hover:text-sp-white'}`}
+          aria-label={showWordByWord ? 'Hide word by word' : 'Show word by word'}
+          title="Word by Word"
+        >
+          <IoText size={22} />
+        </button>
         <div className="ml-auto">
           <ReciterSelector />
         </div>
       </div>
 
       {/* Verses */}
-      <AyahList verses={verses} />
+      <AyahList
+        verses={verses}
+        showWordByWord={showWordByWord}
+        onPlayAyah={verseAudioFiles.length > 0 ? handlePlayAyah : undefined}
+      />
+
+      <ScrollToTop />
     </div>
   );
 }

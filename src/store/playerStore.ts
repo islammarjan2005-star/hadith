@@ -20,6 +20,9 @@ interface PlayerState {
   shuffle: boolean;
   playbackRate: number;
   audioElement: HTMLAudioElement | null;
+  isExpanded: boolean;
+  showQueue: boolean;
+  playingVerseKey: string | null;
 
   setAudioElement: (el: HTMLAudioElement) => void;
   playTrack: (track: QueueItem) => void;
@@ -39,6 +42,11 @@ interface PlayerState {
   toggleShuffle: () => void;
   cyclePlaybackRate: () => void;
   handleEnded: () => void;
+  setExpanded: (v: boolean) => void;
+  setShowQueue: (v: boolean) => void;
+  setPlayingVerseKey: (key: string | null) => void;
+  jumpToTrack: (index: number) => void;
+  removeFromQueue: (index: number) => void;
 }
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2];
@@ -57,12 +65,15 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   shuffle: false,
   playbackRate: 1,
   audioElement: null,
+  isExpanded: false,
+  showQueue: false,
+  playingVerseKey: null,
 
   setAudioElement: (el) => set({ audioElement: el }),
 
   playTrack: (track) => {
     const { audioElement, playbackRate } = get();
-    set({ currentTrack: track, queue: [track], queueIndex: 0, isPlaying: true, hasError: false });
+    set({ currentTrack: track, queue: [track], queueIndex: 0, isPlaying: true, hasError: false, playingVerseKey: null });
     if (audioElement) {
       audioElement.src = track.audioUrl;
       audioElement.playbackRate = playbackRate;
@@ -74,7 +85,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const { audioElement, playbackRate } = get();
     const track = tracks[startIndex];
     if (!track) return;
-    set({ queue: tracks, queueIndex: startIndex, currentTrack: track, isPlaying: true, hasError: false });
+    set({ queue: tracks, queueIndex: startIndex, currentTrack: track, isPlaying: true, hasError: false, playingVerseKey: null });
     if (audioElement) {
       audioElement.src = track.audioUrl;
       audioElement.playbackRate = playbackRate;
@@ -128,7 +139,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const track = queue[nextIndex];
     if (!track) return;
 
-    // Resolve audio URL if not yet set (lazy queue)
     let audioUrl = track.audioUrl;
     if (!audioUrl) {
       set({ isBuffering: true });
@@ -136,7 +146,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       queue[nextIndex] = { ...track, audioUrl };
     }
 
-    set({ queueIndex: nextIndex, currentTrack: { ...track, audioUrl }, isPlaying: true, hasError: false, isBuffering: false });
+    set({ queueIndex: nextIndex, currentTrack: { ...track, audioUrl }, isPlaying: true, hasError: false, isBuffering: false, playingVerseKey: null });
     if (audioElement) {
       audioElement.src = audioUrl;
       audioElement.playbackRate = playbackRate;
@@ -163,7 +173,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
         queue[prevIndex] = { ...track, audioUrl };
       }
 
-      set({ queueIndex: prevIndex, currentTrack: { ...track, audioUrl }, isPlaying: true, hasError: false, isBuffering: false });
+      set({ queueIndex: prevIndex, currentTrack: { ...track, audioUrl }, isPlaying: true, hasError: false, isBuffering: false, playingVerseKey: null });
       if (audioElement) {
         audioElement.src = audioUrl;
         audioElement.playbackRate = playbackRate;
@@ -225,5 +235,38 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     } else {
       get().next();
     }
+  },
+
+  setExpanded: (v) => set({ isExpanded: v }),
+  setShowQueue: (v) => set({ showQueue: v }),
+  setPlayingVerseKey: (key) => set({ playingVerseKey: key }),
+
+  jumpToTrack: async (index) => {
+    const { queue, audioElement, playbackRate } = get();
+    const track = queue[index];
+    if (!track) return;
+
+    let audioUrl = track.audioUrl;
+    if (!audioUrl) {
+      set({ isBuffering: true });
+      audioUrl = await resolveAudioUrl(7, track.chapterId);
+      queue[index] = { ...track, audioUrl };
+    }
+
+    set({ queueIndex: index, currentTrack: { ...track, audioUrl }, isPlaying: true, hasError: false, isBuffering: false, playingVerseKey: null });
+    if (audioElement) {
+      audioElement.src = audioUrl;
+      audioElement.playbackRate = playbackRate;
+      audioElement.play().catch(() => set({ isPlaying: false }));
+    }
+  },
+
+  removeFromQueue: (index) => {
+    const { queue, queueIndex } = get();
+    if (index === queueIndex) return; // can't remove current
+    const newQueue = [...queue];
+    newQueue.splice(index, 1);
+    const newQueueIndex = index < queueIndex ? queueIndex - 1 : queueIndex;
+    set({ queue: newQueue, queueIndex: newQueueIndex });
   },
 }));
