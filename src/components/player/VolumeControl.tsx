@@ -19,14 +19,14 @@ export default function VolumeControl() {
     <div className="hidden sm:flex items-center gap-2">
       <button
         onClick={() => setVolume(volume === 0 ? 0.7 : 0)}
-        className="text-sp-light-gray hover:text-sp-white transition-colors"
+        className="text-nr-muted hover:text-nr-text transition-colors"
       >
         <VolumeIcon size={20} />
       </button>
       <div className="relative w-24 group">
-        <div className="h-1 bg-[#535353] rounded-full overflow-hidden">
+        <div className="h-1 bg-nr-border rounded-full overflow-hidden">
           <div
-            className="h-full bg-sp-white group-hover:bg-sp-green rounded-full transition-colors"
+            className="h-full bg-nr-text group-hover:bg-nr-gold rounded-full transition-colors"
             style={{ width: `${volume * 100}%` }}
           />
         </div>

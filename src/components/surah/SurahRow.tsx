@@ -48,9 +48,9 @@ export default function SurahRow({ chapter, index, allChapters }: SurahRowProps)
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2 rounded-md hover:bg-sp-hover group transition-colors">
+    <div className="flex items-center gap-3 px-4 py-2 rounded-md hover:bg-nr-hover group transition-colors">
       <div className="w-8 text-center">
-        <span className="text-sp-light-gray text-sm group-hover:hidden">{index + 1}</span>
+        <span className="text-nr-muted text-sm group-hover:hidden">{index + 1}</span>
         <div className="hidden group-hover:block">
           <PlayButton
             isPlaying={isCurrentTrack && isPlaying}
@@ -61,22 +61,22 @@ export default function SurahRow({ chapter, index, allChapters }: SurahRowProps)
       </div>
 
       <Link href={`/surah/${chapter.id}`} className="flex-1 flex items-center gap-3 min-w-0">
-        <div className="w-10 h-10 bg-gradient-to-br from-sp-green/30 to-emerald-900 rounded flex items-center justify-center shrink-0">
-          <span className="arabic-text text-sm text-sp-white/90">{chapter.name_arabic}</span>
+        <div className="w-10 h-10 bg-gradient-to-br from-indigo-800/60 to-violet-900/40 rounded flex items-center justify-center shrink-0 border border-nr-gold/10">
+          <span className="arabic-text text-sm text-nr-text/90">{chapter.name_arabic}</span>
         </div>
         <div className="min-w-0">
-          <p className={`text-sm font-medium truncate ${isCurrentTrack ? 'text-sp-green' : 'text-sp-white'}`}>
+          <p className={`text-sm font-medium truncate ${isCurrentTrack ? 'text-nr-gold' : 'text-nr-text'}`}>
             {chapter.name_simple}
           </p>
-          <p className="text-xs text-sp-light-gray truncate">{chapter.translated_name.name}</p>
+          <p className="text-xs text-nr-muted truncate">{chapter.translated_name.name}</p>
         </div>
       </Link>
 
-      <span className="text-xs text-sp-light-gray hidden sm:block">
+      <span className="text-xs text-nr-muted hidden sm:block">
         {chapter.revelation_place === 'makkah' ? 'Meccan' : 'Medinan'}
       </span>
 
-      <span className="text-xs text-sp-light-gray hidden sm:block w-16 text-right">
+      <span className="text-xs text-nr-muted hidden sm:block w-16 text-right">
         {chapter.verses_count} ayahs
       </span>
 
@@ -85,7 +85,7 @@ export default function SurahRow({ chapter, index, allChapters }: SurahRowProps)
           e.preventDefault();
           toggleFavorite(chapter.id);
         }}
-        className={`transition-colors ${liked ? 'text-sp-green' : 'text-sp-light-gray opacity-0 group-hover:opacity-100'}`}
+        className={`transition-colors ${liked ? 'text-nr-gold' : 'text-nr-muted opacity-0 group-hover:opacity-100'}`}
         aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
       >
         {liked ? <IoHeart size={16} /> : <IoHeartOutline size={16} />}

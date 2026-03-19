@@ -54,19 +54,19 @@ export default function SearchPage() {
     : [];
 
   return (
-    <div>
+    <div className="animate-fadeSlideIn">
       <div className="mb-8">
         <SearchInput
           value={query}
           onChange={setQuery}
-          placeholder="What do you want to listen to?"
+          placeholder="Search surahs or verses..."
           autoFocus
         />
       </div>
 
       {!searched && !query && (
         <div>
-          <h2 className="text-2xl font-bold text-sp-white mb-4">Browse All</h2>
+          <h2 className="text-2xl font-bold text-nr-text mb-4">Browse All</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {chapters.slice(0, 12).map((ch) => (
               <SurahCard key={ch.id} chapter={ch} />
@@ -77,7 +77,7 @@ export default function SearchPage() {
 
       {matchingChapters.length > 0 && (
         <section className="mb-8">
-          <h3 className="text-lg font-bold text-sp-white mb-3">Surahs</h3>
+          <h3 className="text-lg font-bold text-nr-text mb-3">Surahs</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {matchingChapters.slice(0, 4).map((ch) => (
               <SurahCard key={ch.id} chapter={ch} />
@@ -93,10 +93,10 @@ export default function SearchPage() {
           ))}
         </div>
       ) : searchError ? (
-        <p className="text-sp-light-gray text-sm">Search failed. Please try again.</p>
+        <p className="text-nr-muted text-sm">Search failed. Please try again.</p>
       ) : results.length > 0 ? (
         <section>
-          <h3 className="text-lg font-bold text-sp-white mb-3">Verses</h3>
+          <h3 className="text-lg font-bold text-nr-text mb-3">Verses</h3>
           <div className="space-y-1">
             {results.map((result) => {
               const [surahId] = result.verse_key.split(':');
@@ -104,17 +104,17 @@ export default function SearchPage() {
                 <Link
                   key={result.verse_id}
                   href={`/surah/${surahId}`}
-                  className="flex items-start gap-3 p-3 rounded-md hover:bg-sp-hover transition-colors block"
+                  className="flex items-start gap-3 p-3 rounded-md hover:bg-nr-hover transition-colors block"
                 >
-                  <span className="text-xs text-sp-light-gray bg-sp-gray px-2 py-1 rounded shrink-0">
+                  <span className="text-xs text-nr-muted bg-nr-panel px-2 py-1 rounded shrink-0">
                     {result.verse_key}
                   </span>
                   <div className="min-w-0">
-                    <p className="text-sm text-sp-white arabic-text text-right mb-1">
+                    <p className="text-sm text-nr-text arabic-text text-right mb-1">
                       {result.text}
                     </p>
                     {result.translations[0] && (
-                      <p className="text-xs text-sp-light-gray line-clamp-2">
+                      <p className="text-xs text-nr-muted line-clamp-2">
                         {result.translations[0].text.replace(/<[^>]*>/g, '')}
                       </p>
                     )}
@@ -125,7 +125,7 @@ export default function SearchPage() {
           </div>
         </section>
       ) : searched && !loading ? (
-        <p className="text-sp-light-gray text-sm">No results found for &quot;{query}&quot;</p>
+        <p className="text-nr-muted text-sm">No results found for &quot;{query}&quot;</p>
       ) : null}
     </div>
   );

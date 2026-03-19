@@ -3,36 +3,19 @@
 import { useEffect, useState } from 'react';
 import { Verse } from '@/types';
 import { getVerses } from '@/lib/api';
-import { IoSparkles, IoShareSocial } from 'react-icons/io5';
+import { IoShareSocial } from 'react-icons/io5';
 
-// Deterministic "random" verse based on today's date
 function getDailyVerseInfo(): { chapterId: number; verseNumber: number } {
   const now = new Date();
   const dayOfYear = Math.floor(
     (now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000
   );
-  // Pick from notable surahs with meaningful verses
   const selections = [
-    { ch: 2, v: 255 }, // Ayatul Kursi
-    { ch: 3, v: 139 },
-    { ch: 13, v: 28 },
-    { ch: 94, v: 5 },
-    { ch: 2, v: 286 },
-    { ch: 3, v: 185 },
-    { ch: 55, v: 13 },
-    { ch: 67, v: 2 },
-    { ch: 21, v: 87 },
-    { ch: 40, v: 60 },
-    { ch: 65, v: 3 },
-    { ch: 2, v: 152 },
-    { ch: 9, v: 51 },
-    { ch: 93, v: 5 },
-    { ch: 112, v: 1 },
-    { ch: 16, v: 97 },
-    { ch: 29, v: 69 },
-    { ch: 39, v: 53 },
-    { ch: 73, v: 8 },
-    { ch: 49, v: 13 },
+    { ch: 2, v: 255 }, { ch: 3, v: 139 }, { ch: 13, v: 28 }, { ch: 94, v: 5 },
+    { ch: 2, v: 286 }, { ch: 3, v: 185 }, { ch: 55, v: 13 }, { ch: 67, v: 2 },
+    { ch: 21, v: 87 }, { ch: 40, v: 60 }, { ch: 65, v: 3 }, { ch: 2, v: 152 },
+    { ch: 9, v: 51 }, { ch: 93, v: 5 }, { ch: 112, v: 1 }, { ch: 16, v: 97 },
+    { ch: 29, v: 69 }, { ch: 39, v: 53 }, { ch: 73, v: 8 }, { ch: 49, v: 13 },
   ];
   const pick = selections[dayOfYear % selections.length];
   return { chapterId: pick.ch, verseNumber: pick.v };
@@ -70,35 +53,45 @@ export default function DailyVerse() {
   };
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-emerald-900/60 via-sp-dark to-sp-gray border border-emerald-800/30 p-6">
-      <div className="absolute top-4 right-4 flex items-center gap-1 text-sp-green/60">
-        <IoSparkles size={14} />
-        <span className="text-[10px] uppercase tracking-widest font-medium">Verse of the Day</span>
-      </div>
+    <div className="relative overflow-hidden rounded-xl border border-nr-gold/15 p-6">
+      {/* Islamic geometric background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-950/80 via-nr-surface to-violet-950/40 geo-pattern" />
+      {/* Gold corner accents */}
+      <div className="absolute top-0 left-0 w-16 h-16 border-t-2 border-l-2 border-nr-gold/20 rounded-tl-xl" />
+      <div className="absolute bottom-0 right-0 w-16 h-16 border-b-2 border-r-2 border-nr-gold/20 rounded-br-xl" />
 
-      <div className="mt-4 mb-4">
-        <p className="arabic-text text-2xl md:text-3xl text-sp-white leading-loose text-right">
-          {verse.text_uthmani}
-        </p>
-      </div>
+      <div className="relative">
+        <div className="flex items-center gap-1 text-nr-gold/60 mb-4">
+          <svg viewBox="0 0 24 24" className="w-4 h-4" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+          <span className="text-[10px] uppercase tracking-widest font-medium">Verse of the Day</span>
+        </div>
 
-      {verse.translations && verse.translations[0] && (
-        <p className="text-sm text-sp-light-gray leading-relaxed mb-4 italic">
-          &ldquo;{verse.translations[0].text.replace(/<[^>]*>/g, '')}&rdquo;
-        </p>
-      )}
+        <div className="mb-4">
+          <p className="arabic-text text-2xl md:text-3xl text-nr-text leading-loose text-right">
+            {verse.text_uthmani}
+          </p>
+        </div>
 
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-sp-light-gray bg-sp-gray/60 px-3 py-1 rounded-full">
-          Surah {surahName} · Verse {verse.verse_number}
-        </span>
-        <button
-          onClick={handleShare}
-          className="text-sp-light-gray hover:text-sp-white transition-colors"
-          aria-label="Share verse"
-        >
-          <IoShareSocial size={18} />
-        </button>
+        {verse.translations && verse.translations[0] && (
+          <p className="text-sm text-nr-muted leading-relaxed mb-4 italic">
+            &ldquo;{verse.translations[0].text.replace(/<[^>]*>/g, '')}&rdquo;
+          </p>
+        )}
+
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-nr-muted bg-nr-panel/60 px-3 py-1 rounded-full border border-nr-border">
+            Surah {surahName} · Verse {verse.verse_number}
+          </span>
+          <button
+            onClick={handleShare}
+            className="text-nr-muted hover:text-nr-text transition-colors"
+            aria-label="Share verse"
+          >
+            <IoShareSocial size={18} />
+          </button>
+        </div>
       </div>
     </div>
   );

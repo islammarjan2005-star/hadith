@@ -1,24 +1,26 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-sp-black: #121212;
-  --color-sp-dark: #181818;
-  --color-sp-gray: #282828;
-  --color-sp-light-gray: #b3b3b3;
-  --color-sp-white: #ffffff;
-  --color-sp-green: #1db954;
-  --color-sp-green-light: #1ed760;
-  --color-sp-hover: #2a2a2a;
+  /* Noor — Indigo + Gold palette */
+  --color-nr-base: #0f0e2e;
+  --color-nr-surface: #1a1940;
+  --color-nr-panel: #221f52;
+  --color-nr-muted: #8b85a6;
+  --color-nr-text: #e8e4f0;
+  --color-nr-gold: #d4a846;
+  --color-nr-gold-light: #e2bc5e;
+  --color-nr-hover: #2a2760;
+  --color-nr-border: #2e2b5a;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #535353 transparent;
+  scrollbar-color: #3d3873 transparent;
 }
 
 body {
-  background: #121212;
-  color: #ffffff;
+  background: #0f0e2e;
+  color: #e8e4f0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
   overflow: hidden;
 }
@@ -33,7 +35,7 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-runnable-track {
   height: 4px;
   border-radius: 2px;
-  background: #535353;
+  background: #3d3873;
 }
 
 input[type="range"]::-webkit-slider-thumb {
@@ -41,7 +43,7 @@ input[type="range"]::-webkit-slider-thumb {
   height: 12px;
   width: 12px;
   border-radius: 50%;
-  background: #fff;
+  background: #d4a846;
   margin-top: -4px;
   opacity: 0;
   transition: opacity 0.15s;
@@ -57,15 +59,15 @@ input[type="range"]:hover::-webkit-slider-thumb {
   line-height: 2.2;
 }
 
-/* Visible focus rings for keyboard navigation */
+/* Focus rings — gold accent */
 :focus-visible {
-  outline: 2px solid #1db954;
+  outline: 2px solid #d4a846;
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 button:focus-visible {
-  outline: 2px solid #1db954;
+  outline: 2px solid #d4a846;
   outline-offset: 2px;
 }
 
@@ -94,21 +96,13 @@ button:focus-visible {
 
 /* Now Playing slide up */
 @keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
 
 @keyframes slideDown {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(100%);
-  }
+  from { transform: translateY(0); }
+  to { transform: translateY(100%); }
 }
 
 .animate-slideUp {
@@ -121,12 +115,8 @@ button:focus-visible {
 
 /* Queue slide in from right */
 @keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
 
 .animate-slideInRight {
@@ -135,31 +125,73 @@ button:focus-visible {
 
 /* Shimmer skeleton */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .skeleton-shimmer {
-  background: linear-gradient(90deg, #282828 25%, #383838 50%, #282828 75%);
+  background: linear-gradient(90deg, #221f52 25%, #2e2b5a 50%, #221f52 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* Verse highlight pulse */
+/* Verse highlight pulse — gold accent */
 @keyframes versePulse {
-  0%, 100% {
-    background-color: rgba(29, 185, 84, 0.05);
-  }
-  50% {
-    background-color: rgba(29, 185, 84, 0.1);
-  }
+  0%, 100% { background-color: rgba(212, 168, 70, 0.05); }
+  50% { background-color: rgba(212, 168, 70, 0.1); }
 }
 
 .verse-active {
   animation: versePulse 2s ease-in-out infinite;
-  border-left: 3px solid #1db954;
+  border-left: 3px solid #d4a846;
+}
+
+/* Sajdah marker */
+.sajdah-marker {
+  position: relative;
+}
+
+.sajdah-marker::after {
+  content: '۩';
+  position: absolute;
+  top: -2px;
+  right: -20px;
+  color: #d4a846;
+  font-size: 18px;
+}
+
+/* Islamic geometric pattern overlay */
+.geo-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%232e2b5a' stroke-width='0.5'%3E%3Cpath d='M30 0L60 30L30 60L0 30Z'/%3E%3Cpath d='M30 10L50 30L30 50L10 30Z'/%3E%3Cpath d='M30 20L40 30L30 40L20 30Z'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 60px 60px;
+}
+
+/* Bismillah styling */
+.bismillah {
+  font-family: 'Traditional Arabic', 'Scheherazade New', 'Amiri', serif;
+  direction: rtl;
+  text-align: center;
+  font-size: 1.75rem;
+  color: #d4a846;
+  padding: 1rem 0;
+  letter-spacing: 0.02em;
+  line-height: 2;
+}
+
+/* Gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #d4a846, #e2bc5e, #c9973a);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Noor glow effect */
+@keyframes noorGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(212, 168, 70, 0.1); }
+  50% { box-shadow: 0 0 30px rgba(212, 168, 70, 0.2); }
+}
+
+.noor-glow {
+  animation: noorGlow 3s ease-in-out infinite;
 }

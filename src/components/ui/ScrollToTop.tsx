@@ -37,7 +37,7 @@ export default function ScrollToTop({ scrollContainer }: ScrollToTopProps) {
   return (
     <button
       onClick={scrollToTop}
-      className="fixed bottom-24 right-6 z-20 w-10 h-10 rounded-full bg-sp-gray/90 border border-[#383838] flex items-center justify-center text-sp-white hover:bg-sp-hover transition-colors shadow-lg animate-fadeSlideIn"
+      className="fixed bottom-24 right-6 z-20 w-10 h-10 rounded-full bg-nr-panel/90 border border-nr-border flex items-center justify-center text-nr-text hover:bg-nr-hover transition-colors shadow-lg animate-fadeSlideIn"
       aria-label="Scroll to top"
     >
       <IoChevronUp size={20} />

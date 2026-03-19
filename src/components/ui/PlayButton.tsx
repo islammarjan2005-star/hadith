@@ -24,12 +24,12 @@ export default function PlayButton({ isPlaying, onClick, size = 'md' }: PlayButt
         e.stopPropagation();
         onClick();
       }}
-      className={`${sizes[size]} rounded-full bg-sp-green hover:bg-sp-green-light hover:scale-105 flex items-center justify-center transition-all shadow-lg`}
+      className={`${sizes[size]} rounded-full bg-nr-gold hover:bg-nr-gold-light hover:scale-105 flex items-center justify-center transition-all shadow-lg`}
     >
       {isPlaying ? (
-        <IoPauseSharp size={iconSizes[size]} className="text-black" />
+        <IoPauseSharp size={iconSizes[size]} className="text-nr-base" />
       ) : (
-        <IoPlaySharp size={iconSizes[size]} className="text-black ml-0.5" />
+        <IoPlaySharp size={iconSizes[size]} className="text-nr-base ml-0.5" />
       )}
     </button>
   );

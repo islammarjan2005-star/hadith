@@ -22,7 +22,7 @@ export default function MobileNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-sp-black border-t border-[#282828] px-4 py-2 z-20" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-nr-base border-t border-nr-border px-4 py-2 z-20" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="flex justify-around">
         {navItems.map((item) => {
           const active = isActive(item.href, item.exact);
@@ -32,7 +32,7 @@ export default function MobileNav() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 text-[10px] font-medium py-1 px-3 ${
-                active ? 'text-sp-white' : 'text-sp-light-gray'
+                active ? 'text-nr-gold' : 'text-nr-muted'
               }`}
             >
               <Icon size={22} />

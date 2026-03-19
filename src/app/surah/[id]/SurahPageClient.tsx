@@ -60,7 +60,7 @@ export default function SurahPageClient() {
       .catch(() => setVerseAudioFiles([]));
   }, [id, selectedReciterId]);
 
-  // Hot-swap reciter when changed mid-playback
+  // Hot-swap reciter
   useEffect(() => {
     if (!isCurrentTrack || !chapter) return;
     const swapReciter = async () => {
@@ -77,9 +77,7 @@ export default function SurahPageClient() {
           });
           if (wasPlaying) store.audioElement.play().catch(() => {});
         }
-      } catch {
-        // Keep current audio if swap fails
-      }
+      } catch { /* Keep current */ }
     };
     swapReciter();
   }, [selectedReciterId, selectedReciterName, isCurrentTrack, chapter]);
@@ -115,7 +113,6 @@ export default function SurahPageClient() {
   const handleResumeBookmark = () => {
     if (!bookmark || !chapter) return;
     handlePlayAll().then(() => {
-      // Wait for audio to load, then seek
       setTimeout(() => {
         const { audioElement } = usePlayerStore.getState();
         if (audioElement) {
@@ -129,7 +126,6 @@ export default function SurahPageClient() {
   const handlePlayAyah = (verseKey: string) => {
     if (!chapter || verseAudioFiles.length === 0) return;
 
-    // Build a queue from verse audio files
     const queue = verseAudioFiles.map((af) => ({
       chapterId: chapter.id,
       chapterName: `${chapter.name_simple} - ${af.verse_key}`,
@@ -145,7 +141,6 @@ export default function SurahPageClient() {
     playQueue(queue, startIndex);
     addToRecent(chapter.id, chapter.name_simple);
 
-    // Track verse key changes as audio advances
     const unsubscribe = usePlayerStore.subscribe((state, prevState) => {
       if (state.currentTrack !== prevState.currentTrack && state.currentTrack) {
         const match = verseAudioFiles.find((af) => af.url === state.currentTrack?.audioUrl);
@@ -156,15 +151,12 @@ export default function SurahPageClient() {
           unsubscribe();
         }
       }
-      if (!state.isPlaying && !state.isBuffering && prevState.isPlaying) {
-        // Could be paused or ended
-      }
     });
   };
 
   const handleShare = async () => {
     const url = window.location.href;
-    const text = chapter ? `Listen to Surah ${chapter.name_simple}` : 'Listen to Quran';
+    const text = chapter ? `Listen to Surah ${chapter.name_simple} on Noor` : 'Listen to Quran on Noor';
     if (navigator.share) {
       try {
         await navigator.share({ title: text, url });
@@ -188,10 +180,10 @@ export default function SurahPageClient() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
-        <p className="text-sp-light-gray mb-4">{error}</p>
+        <p className="text-nr-muted mb-4">{error}</p>
         <button
           onClick={loadData}
-          className="px-6 py-2 bg-sp-green text-black rounded-full font-semibold text-sm hover:bg-sp-green-light transition-colors"
+          className="px-6 py-2 bg-nr-gold text-nr-base rounded-full font-semibold text-sm hover:bg-nr-gold-light transition-colors"
         >
           Try Again
         </button>
@@ -200,22 +192,24 @@ export default function SurahPageClient() {
   }
 
   if (!chapter) {
-    return <p className="text-sp-light-gray">Surah not found.</p>;
+    return <p className="text-nr-muted">Surah not found.</p>;
   }
 
   return (
     <div className="animate-fadeSlideIn">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 mb-8 bg-gradient-to-b from-emerald-900/40 to-transparent -mx-4 md:-mx-6 -mt-14 px-4 md:px-6 pt-20 pb-6">
-        <div className="w-40 h-40 bg-gradient-to-br from-sp-green/40 to-emerald-900 rounded-lg flex items-center justify-center shadow-2xl shrink-0">
-          <div className="text-center">
-            <p className="arabic-text text-4xl text-sp-white">{chapter.name_arabic}</p>
+      {/* Header — unique gradient, not Spotify-style */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 mb-8 bg-gradient-to-b from-indigo-950/60 to-transparent -mx-4 md:-mx-6 -mt-14 px-4 md:px-6 pt-20 pb-6">
+        <div className="w-40 h-40 relative rounded-lg overflow-hidden shadow-2xl shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/80 via-nr-panel to-violet-900/60 geo-pattern" />
+          <div className="absolute inset-3 border border-nr-gold/20 rounded" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="arabic-text text-4xl text-nr-text">{chapter.name_arabic}</p>
           </div>
         </div>
         <div className="flex-1">
-          <p className="text-xs uppercase tracking-wider text-sp-light-gray mb-1">Surah</p>
-          <h1 className="text-4xl md:text-6xl font-bold text-sp-white mb-2">{chapter.name_simple}</h1>
-          <p className="text-sm text-sp-light-gray">
+          <p className="text-xs uppercase tracking-wider text-nr-muted mb-1">Surah</p>
+          <h1 className="text-4xl md:text-6xl font-bold text-nr-text mb-2">{chapter.name_simple}</h1>
+          <p className="text-sm text-nr-muted">
             {chapter.translated_name.name} · {chapter.revelation_place === 'makkah' ? 'Meccan' : 'Medinan'} · {chapter.verses_count} verses
           </p>
         </div>
@@ -225,9 +219,9 @@ export default function SurahPageClient() {
       {bookmark && bookmark.position > 5 && (
         <button
           onClick={handleResumeBookmark}
-          className="flex items-center gap-2 mb-4 px-4 py-2 bg-sp-gray/60 rounded-lg text-sm text-sp-white hover:bg-sp-hover transition-colors"
+          className="flex items-center gap-2 mb-4 px-4 py-2 bg-nr-panel/60 rounded-lg text-sm text-nr-text hover:bg-nr-hover transition-colors border border-nr-border"
         >
-          <IoBookmark size={16} className="text-sp-green" />
+          <IoBookmark size={16} className="text-nr-gold" />
           Resume from {formatTime(bookmark.position)}
         </button>
       )}
@@ -241,21 +235,21 @@ export default function SurahPageClient() {
         />
         <button
           onClick={() => toggleFavorite(chapter.id)}
-          className={`transition-colors ${liked ? 'text-sp-green' : 'text-sp-light-gray hover:text-sp-white'}`}
+          className={`transition-colors ${liked ? 'text-nr-gold' : 'text-nr-muted hover:text-nr-text'}`}
           aria-label={liked ? 'Remove from favorites' : 'Add to favorites'}
         >
           {liked ? <IoHeart size={28} /> : <IoHeartOutline size={28} />}
         </button>
         <button
           onClick={handleShare}
-          className="text-sp-light-gray hover:text-sp-white transition-colors"
+          className="text-nr-muted hover:text-nr-text transition-colors"
           aria-label="Share this surah"
         >
           <IoShareSocial size={24} />
         </button>
         <button
           onClick={() => setShowWordByWord(!showWordByWord)}
-          className={`transition-colors ${showWordByWord ? 'text-sp-green' : 'text-sp-light-gray hover:text-sp-white'}`}
+          className={`transition-colors ${showWordByWord ? 'text-nr-gold' : 'text-nr-muted hover:text-nr-text'}`}
           aria-label={showWordByWord ? 'Hide word by word' : 'Show word by word'}
           title="Word by Word"
         >
@@ -266,10 +260,11 @@ export default function SurahPageClient() {
         </div>
       </div>
 
-      {/* Verses */}
+      {/* Verses with bismillah */}
       <AyahList
         verses={verses}
         showWordByWord={showWordByWord}
+        showBismillah={chapter.bismillah_pre}
         onPlayAyah={verseAudioFiles.length > 0 ? handlePlayAyah : undefined}
       />
 

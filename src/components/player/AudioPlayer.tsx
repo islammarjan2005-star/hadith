@@ -82,7 +82,7 @@ export default function AudioPlayer() {
       {isExpanded && <NowPlayingView />}
       {showQueue && <QueueView />}
 
-      <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-sp-dark border-t border-[#282828] flex items-center px-4 z-30">
+      <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-nr-surface border-t border-nr-border flex items-center px-4 z-30">
         <audio
           ref={audioRef}
           onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
@@ -111,16 +111,16 @@ export default function AudioPlayer() {
         >
           {currentTrack ? (
             <>
-              <div className="w-10 h-10 bg-gradient-to-br from-sp-green/30 to-emerald-900 rounded flex items-center justify-center shrink-0">
-                <span className="text-sp-green text-lg font-bold">{currentTrack.chapterId}</span>
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-800/60 to-violet-900/40 rounded flex items-center justify-center shrink-0 border border-nr-gold/20">
+                <span className="text-nr-gold text-lg font-bold">{currentTrack.chapterId}</span>
               </div>
               <div className="truncate">
-                <p className="text-sm text-sp-white truncate">{currentTrack.chapterName}</p>
-                <p className="text-[11px] text-sp-light-gray truncate">{currentTrack.reciterName}</p>
+                <p className="text-sm text-nr-text truncate">{currentTrack.chapterName}</p>
+                <p className="text-[11px] text-nr-muted truncate">{currentTrack.reciterName}</p>
               </div>
             </>
           ) : (
-            <div className="text-sp-light-gray text-sm">No track selected</div>
+            <div className="text-nr-muted text-sm">No track selected</div>
           )}
         </button>
 
@@ -134,7 +134,7 @@ export default function AudioPlayer() {
         <div className="w-[200px] min-w-[120px] flex justify-end items-center gap-2">
           <button
             onClick={cyclePlaybackRate}
-            className="hidden sm:flex text-[11px] text-sp-light-gray hover:text-sp-white transition-colors border border-sp-light-gray/30 rounded px-1.5 py-0.5 min-w-[36px] justify-center"
+            className="hidden sm:flex text-[11px] text-nr-muted hover:text-nr-text transition-colors border border-nr-muted/30 rounded px-1.5 py-0.5 min-w-[36px] justify-center"
             aria-label={`Playback speed ${playbackRate}x`}
           >
             {playbackRate}x
@@ -151,14 +151,14 @@ export default function AudioPlayer() {
                 });
               }
             }}
-            className="hidden sm:flex text-sp-light-gray hover:text-sp-white transition-colors"
+            className="hidden sm:flex text-nr-muted hover:text-nr-text transition-colors"
             aria-label="Save bookmark"
           >
             <IoBookmark size={16} />
           </button>
           <button
             onClick={() => setShowQueue(!showQueue)}
-            className={`hidden sm:flex transition-colors ${showQueue ? 'text-sp-green' : 'text-sp-light-gray hover:text-sp-white'}`}
+            className={`hidden sm:flex transition-colors ${showQueue ? 'text-nr-gold' : 'text-nr-muted hover:text-nr-text'}`}
             aria-label="Toggle queue"
           >
             <IoList size={20} />

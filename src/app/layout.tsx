@@ -3,23 +3,23 @@ import "./globals.css";
 import ClientLayout from "@/components/layout/ClientLayout";
 
 export const metadata: Metadata = {
-  title: "Quran Player - Listen to the Holy Quran",
-  description: "A Spotify-style Quran listening experience with multiple reciters",
+  title: "Noor — Illuminate Your Recitation",
+  description: "A beautiful Quran listening and reading experience with multiple reciters, verse-by-verse audio, and daily inspiration",
   manifest: "/hadith/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Quran Player",
+    title: "Noor",
   },
   openGraph: {
-    title: "Quran Player",
-    description: "Listen to the Holy Quran with your favorite reciters",
+    title: "Noor — Quran",
+    description: "Listen to and read the Holy Quran with your favorite reciters",
     type: "website",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#121212",
+  themeColor: "#0f0e2e",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
