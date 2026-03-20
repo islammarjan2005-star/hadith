@@ -59,7 +59,7 @@ export default function BrowsePage() {
 
   return (
     <div className="animate-fadeSlideIn">
-      <h1 className="text-3xl font-bold text-nr-text mb-6">Browse Surahs</h1>
+      <h1 className="text-3xl font-bold text-nr-text mb-6">Surahs</h1>
 
       {/* Browse mode toggle */}
       <div className="flex items-center gap-4 mb-4">
@@ -103,14 +103,6 @@ export default function BrowsePage() {
 
       {browseMode === 'surah' ? (
         <>
-          <div className="flex items-center gap-3 px-4 py-2 border-b border-nr-border text-xs text-nr-muted uppercase tracking-wider mb-2">
-            <span className="w-8 text-center">#</span>
-            <span className="flex-1">Title</span>
-            <span className="hidden sm:block">Type</span>
-            <span className="hidden sm:block w-16 text-right">Verses</span>
-            <span className="w-8"></span>
-          </div>
-
           {loading ? (
             <div className="space-y-1">
               {Array.from({ length: 20 }).map((_, i) => (

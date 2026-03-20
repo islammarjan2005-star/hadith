@@ -3,12 +3,10 @@
 import { useEffect, useRef } from 'react';
 import { usePlayerStore } from '@/store/playerStore';
 import { useLibraryStore } from '@/store/libraryStore';
-import PlayerControls from './PlayerControls';
-import ProgressBar from './ProgressBar';
-import VolumeControl from './VolumeControl';
 import NowPlayingView from './NowPlayingView';
 import QueueView from './QueueView';
-import { IoList, IoBookmark } from 'react-icons/io5';
+import { IoPlaySharp, IoPauseSharp } from 'react-icons/io5';
+import { formatTime } from '@/lib/utils';
 
 export default function AudioPlayer() {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -17,8 +15,11 @@ export default function AudioPlayer() {
   const {
     currentTrack,
     isPlaying,
+    isBuffering,
     isExpanded,
     showQueue,
+    duration,
+    currentTime,
     setAudioElement,
     setDuration,
     setCurrentTime,
@@ -26,10 +27,9 @@ export default function AudioPlayer() {
     setError,
     handleEnded,
     volume,
-    playbackRate,
-    cyclePlaybackRate,
+    togglePlay,
+    seek,
     setExpanded,
-    setShowQueue,
   } = usePlayerStore();
 
   const { addListenTime, saveBookmark, markSurahComplete } = useLibraryStore();
@@ -77,95 +77,79 @@ export default function AudioPlayer() {
     };
   }, [isPlaying, currentTrack, saveBookmark]);
 
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+
   return (
     <>
       {isExpanded && <NowPlayingView />}
       {showQueue && <QueueView />}
 
-      <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-nr-surface border-t border-nr-border flex items-center px-4 z-30">
-        <audio
-          ref={audioRef}
-          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          onLoadedMetadata={(e) => {
-            setDuration(e.currentTarget.duration);
-            setBuffering(false);
-          }}
-          onEnded={() => {
-            if (currentTrack) markSurahComplete(currentTrack.chapterId);
-            handleEnded();
-          }}
-          onWaiting={() => setBuffering(true)}
-          onCanPlay={() => setBuffering(false)}
-          onError={() => {
-            setError(true);
-            setBuffering(false);
-          }}
-          preload="auto"
-        />
+      <audio
+        ref={audioRef}
+        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+        onLoadedMetadata={(e) => {
+          setDuration(e.currentTarget.duration);
+          setBuffering(false);
+        }}
+        onEnded={() => {
+          if (currentTrack) markSurahComplete(currentTrack.chapterId);
+          handleEnded();
+        }}
+        onWaiting={() => setBuffering(true)}
+        onCanPlay={() => setBuffering(false)}
+        onError={() => {
+          setError(true);
+          setBuffering(false);
+        }}
+        preload="auto"
+      />
 
-        {/* Track info — click to expand */}
-        <button
-          className="w-[200px] min-w-[120px] flex items-center gap-3 text-left"
-          onClick={() => currentTrack && setExpanded(true)}
-          aria-label="Open now playing"
-        >
-          {currentTrack ? (
-            <>
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-800/60 to-violet-900/40 rounded flex items-center justify-center shrink-0 border border-nr-gold/20">
-                <span className="text-nr-gold text-lg font-bold">{currentTrack.chapterId}</span>
-              </div>
-              <div className="truncate">
-                <p className="text-sm text-nr-text truncate">{currentTrack.chapterName}</p>
-                <p className="text-[11px] text-nr-muted truncate">{currentTrack.reciterName}</p>
-              </div>
-            </>
-          ) : (
-            <div className="text-nr-muted text-sm">No track selected</div>
-          )}
-        </button>
+      {/* Floating pill player */}
+      {currentTrack && (
+        <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-30 w-[calc(100%-2rem)] max-w-[520px]">
+          <button
+            onClick={() => setExpanded(true)}
+            className="w-full bg-nr-surface/95 backdrop-blur-xl border border-nr-border rounded-full px-4 py-2.5 flex items-center gap-3 shadow-lg shadow-black/30 hover:bg-nr-panel/90 transition-colors group"
+            aria-label="Open now playing"
+          >
+            {/* Surah name */}
+            <span className="text-sm font-medium text-nr-text truncate min-w-0">
+              {currentTrack.chapterName}
+            </span>
 
-        {/* Controls + Progress */}
-        <div className="flex-1 flex flex-col items-center justify-center gap-1 max-w-[700px] mx-auto">
-          <PlayerControls />
-          <ProgressBar />
+            {/* Inline progress bar */}
+            <div className="flex-1 h-1 bg-nr-border rounded-full overflow-hidden min-w-[60px]">
+              <div
+                className="h-full bg-nr-gold rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* Play/Pause */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlay();
+              }}
+              className="w-8 h-8 rounded-full bg-nr-gold flex items-center justify-center shrink-0 hover:bg-nr-gold-light transition-colors"
+              aria-label={isPlaying ? 'Pause' : 'Play'}
+            >
+              {isBuffering ? (
+                <div className="w-4 h-4 border-2 border-nr-base/30 border-t-nr-base rounded-full animate-spin" />
+              ) : isPlaying ? (
+                <IoPauseSharp size={14} className="text-nr-base" />
+              ) : (
+                <IoPlaySharp size={14} className="text-nr-base ml-0.5" />
+              )}
+            </button>
+
+            {/* Time */}
+            <span className="text-[11px] text-nr-muted tabular-nums shrink-0 hidden sm:block">
+              {formatTime(currentTime)}/{formatTime(duration)}
+            </span>
+          </button>
         </div>
-
-        {/* Volume + Speed + Queue */}
-        <div className="w-[200px] min-w-[120px] flex justify-end items-center gap-2">
-          <button
-            onClick={cyclePlaybackRate}
-            className="hidden sm:flex text-[11px] text-nr-muted hover:text-nr-text transition-colors border border-nr-muted/30 rounded px-1.5 py-0.5 min-w-[36px] justify-center"
-            aria-label={`Playback speed ${playbackRate}x`}
-          >
-            {playbackRate}x
-          </button>
-          <button
-            onClick={() => {
-              if (currentTrack) {
-                const { currentTime } = usePlayerStore.getState();
-                saveBookmark({
-                  chapterId: currentTrack.chapterId,
-                  chapterName: currentTrack.chapterName,
-                  position: currentTime,
-                  verseKey: `${currentTrack.chapterId}:1`,
-                });
-              }
-            }}
-            className="hidden sm:flex text-nr-muted hover:text-nr-text transition-colors"
-            aria-label="Save bookmark"
-          >
-            <IoBookmark size={16} />
-          </button>
-          <button
-            onClick={() => setShowQueue(!showQueue)}
-            className={`hidden sm:flex transition-colors ${showQueue ? 'text-nr-gold' : 'text-nr-muted hover:text-nr-text'}`}
-            aria-label="Toggle queue"
-          >
-            <IoList size={20} />
-          </button>
-          <VolumeControl />
-        </div>
-      </div>
+      )}
     </>
   );
 }

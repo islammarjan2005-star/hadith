@@ -49,7 +49,7 @@ export default function LibraryPage() {
   return (
     <div className="space-y-8 animate-fadeSlideIn">
       <section>
-        <h1 className="text-3xl font-bold text-nr-text mb-6">Your Library</h1>
+        <h1 className="text-3xl font-bold text-nr-text mb-6">My Quran</h1>
 
         {/* Listening Stats */}
         {totalListenTime > 0 && (
@@ -110,7 +110,7 @@ export default function LibraryPage() {
         {loading ? (
           <GridSkeleton count={6} />
         ) : favoriteChapters.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {favoriteChapters.map((chapter) => (
               <SurahCard key={chapter.id} chapter={chapter} />
             ))}
@@ -130,7 +130,7 @@ export default function LibraryPage() {
         {loading ? (
           <GridSkeleton count={6} />
         ) : recentChapters.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {recentChapters.map((chapter) => (
               <SurahCard key={chapter.id} chapter={chapter} />
             ))}

@@ -1,8 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import Sidebar from './Sidebar';
-import TopBar from './TopBar';
+import TopNav from './TopNav';
 import MobileNav from './MobileNav';
 import AudioPlayer from '@/components/player/AudioPlayer';
 import { usePlayerStore } from '@/store/playerStore';
@@ -48,16 +47,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex flex-1 overflow-hidden gap-2 p-2">
-        <Sidebar />
-        <main className="flex-1 bg-nr-surface rounded-lg overflow-y-auto">
-          <TopBar />
-          <div className="px-4 md:px-6 pb-32 md:pb-24">
-            {children}
-          </div>
-        </main>
-      </div>
+    <div className="h-screen flex flex-col bg-nr-base">
+      <TopNav />
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 pb-40 md:pb-32 pt-4">
+          {children}
+        </div>
+      </main>
       <MobileNav />
       <AudioPlayer />
     </div>

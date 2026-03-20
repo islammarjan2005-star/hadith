@@ -2,15 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IoHomeSharp, IoHomeOutline, IoSearchSharp, IoSearchOutline } from 'react-icons/io5';
+import { IoHomeSharp, IoHomeOutline } from 'react-icons/io5';
 import { BiLibrary } from 'react-icons/bi';
 import { MdOutlineExplore, MdExplore } from 'react-icons/md';
 
 const navItems = [
   { href: '/', label: 'Home', icon: IoHomeOutline, activeIcon: IoHomeSharp, exact: true },
-  { href: '/search', label: 'Search', icon: IoSearchOutline, activeIcon: IoSearchSharp, exact: true },
-  { href: '/browse', label: 'Browse', icon: MdOutlineExplore, activeIcon: MdExplore, exact: false },
-  { href: '/library', label: 'Library', icon: BiLibrary, activeIcon: BiLibrary, exact: true },
+  { href: '/browse', label: 'Surahs', icon: MdOutlineExplore, activeIcon: MdExplore, exact: false },
+  { href: '/library', label: 'My Quran', icon: BiLibrary, activeIcon: BiLibrary, exact: true },
 ];
 
 export default function MobileNav() {
@@ -22,7 +21,7 @@ export default function MobileNav() {
   };
 
   return (
-    <nav className="md:hidden fixed bottom-[72px] left-0 right-0 bg-nr-base border-t border-nr-border px-4 py-2 z-20" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-nr-base/95 backdrop-blur-md border-t border-nr-border px-4 py-2 z-20" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       <div className="flex justify-around">
         {navItems.map((item) => {
           const active = isActive(item.href, item.exact);
