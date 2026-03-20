@@ -6,6 +6,13 @@ export const metadata: Metadata = {
   title: "Noor — Illuminate Your Recitation",
   description: "A beautiful Quran listening and reading experience with multiple reciters, verse-by-verse audio, and daily inspiration",
   manifest: "/hadith/manifest.json",
+  icons: {
+    icon: [
+      { url: "/hadith/favicon.svg", type: "image/svg+xml" },
+      { url: "/hadith/favicon.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: "/hadith/icon-192.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

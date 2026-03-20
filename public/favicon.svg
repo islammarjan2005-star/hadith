@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a1940"/>
+      <stop offset="100%" stop-color="#0f0e2e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#e2bc5e"/>
+      <stop offset="50%" stop-color="#d4a846"/>
+      <stop offset="100%" stop-color="#c9973a"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="7" fill="url(#bg)"/>
+  <!-- Noon bowl -->
+  <path d="M8 20 Q8 14 12.5 12 Q14.5 11 16 11 Q17.5 11 19.5 12 Q24 14 24 20"
+        stroke="url(#gold)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+  <!-- Dot -->
+  <circle cx="16" cy="9" r="1.8" fill="#d4a846"/>
+</svg>

@@ -1,12 +1,12 @@
 {
-  "name": "Quran Player",
-  "short_name": "Quran",
-  "description": "A Spotify-style Quran listening experience with multiple reciters",
+  "name": "Noor — Illuminate Your Recitation",
+  "short_name": "Noor",
+  "description": "A beautiful Quran listening and reading experience with verse-by-verse audio, multiple reciters, and daily inspiration",
   "start_url": "/hadith/",
   "scope": "/hadith/",
   "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#1db954",
+  "background_color": "#0f0e2e",
+  "theme_color": "#d4a846",
   "orientation": "any",
   "icons": [
     {
